@@ -19,19 +19,6 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.role})"
 
-    def save(self, *args, **kwargs):
-        if self.role == "MANAGEMENT":
-            self.is_superuser = True
-            self.is_staff = True
-        else:
-            self.is_superuser = False
-            self.is_staff = False
-
-        user = super(User, self)
-        user.save()
-
-        return user
-
 
 class Client (models.Model):
     first_name = models.CharField(max_length=128)

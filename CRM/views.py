@@ -1,70 +1,73 @@
 from rest_framework.viewsets import ModelViewSet
 
-from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
-
-
-from .models import Client, Contract, User, Event
+from .models import Client, Contract, Event
 from .serializers import (
-    UserSerializer,
     ClientSerializer,
-    SignupSerializer,
     ContractSerializer,
     EventSerializer,
-
 )
 from .permissions import (
-    IsReadOnly, IsGroupSalesEditOnly, IsGroupSupportEditOnly, IsManager
+    IsGroupSales, IsGroupSupport, IsManager
 )
-
-
-class SignupViewset(GenericAPIView):
-    serializer_class = SignupSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response(
-            {
-                "user": UserSerializer(
-                    user,
-                    context=self.get_serializer_context()).data
-            }
-        )
 
 
 class ClientViewset(ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [IsAuthenticated, IsReadOnly, IsGroupSalesEditOnly, IsManager]
 
-    """def post(self, request, *args, **kwargs):
-        serializer = ClientSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            if serializer.validated_data["status"] is True:
-                serializer.validated_data["sales_contact"] = request.user
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+        elif self.action == 'create':
+            permission_classes = [IsManager | IsGroupSales]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [IsManager | IsGroupSales]
+        elif self.action == 'destroy':
+            permission_classes = [IsManager]
+        return [permission() for permission in permission_classes]
 
-    def update(self, request, *args, **kwargs):
-        client = self.get_object()
-        serializer = ClientSerializer(data=request.data, instance=client)
-        if serializer.is_valid(raise_exception=True):
-            if serializer.validated_data["status"] is True:
-                serializer.validated_data["sales_contact"] = request.user
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)"""
 
 
 class ContractViewset(ModelViewSet):
-    queryset = Contract.objects.all()
     serializer_class = ContractSerializer
-    permission_classes = [IsAuthenticated, IsReadOnly, IsGroupSalesEditOnly, IsManager]
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+        elif self.action == 'create':
+            permission_classes = [IsManager | IsGroupSales]
+        elif self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [IsManager | IsGroupSales]
+        elif self.action == 'destroy':
+            permission_classes = [IsManager]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if self.request.user.role == "SUPPORT":
+            return Contract.objects.filter(event__support_contact=self.request.user).order_by('date_created')
+        elif self.request.user.role == "SALES":
+            return Contract.objects.filter(client__sales_contact=self.request.user).order_by('date_created')
+        return Contract.objects.all().order_by('date_created')
 
 
 class EventViewset(ModelViewSet):
-    queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = [IsAuthenticated, IsReadOnly, IsGroupSalesEditOnly, IsGroupSupportEditOnly, IsManager]
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'list' or self.action == 'retrieve' or self.action == 'update' or self.action == 'partial_update':
+            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+        elif self.action == 'create':
+            permission_classes = [IsManager | IsGroupSales]
+        elif self.action == 'destroy':
+            permission_classes = [IsManager]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if self.request.user.role == "SUPPORT":
+            return Event.objects.filter(support_contact=self.request.user).order_by('date_created')
+        elif self.request.user.role == "SALES":
+            return Event.objects.filter(contract__client__sales_contact=self.request.user).order_by('date_created')
+        return Event.objects.all().order_by('date_created')

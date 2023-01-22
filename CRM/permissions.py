@@ -1,65 +1,64 @@
 from rest_framework import permissions
 
+from .models import Client, Contract, Event
+
 
 class IsManager(permissions.BasePermission):
-   
     """
     Group MANAGEMENT : can CRUD
     """
 
     def has_permission(self, request, view):
-        return (
-            request.user.role == "MANAGEMENT"
-            and request.method in permissions.SAFE_METHODS
-        )
-
-    def has_object_permission(self, request, view, obj):
-        return self.has_permission(request, view)
-
-
-class IsReadOnly(permissions.BasePermission):
-
-    """
-    All members must have read-only access to all clients, contracts or events.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.user and bool(request.user.role == "MANAGEMENT"):
             return True
-        return request.user.is_superuser == True
+        return False
 
-    def has_permission(self, request, view):
+    def has_object_permission(self, request, view, obj):
         return True
 
 
-class IsGroupSalesEditOnly(permissions.BasePermission):
-
+class IsGroupSales(permissions.BasePermission):
     """
     A right of modification/access for :
     Sales group: all customers for whom they are responsible, as well as for their contracts and events.
     """
 
-    def has_object_permission(self, request, view, obj):
-
-        if request.method == "POST" | "PUT" and request.user.role == "SALES":
-            return True
-        return request.user.is_superuser == True
-
     def has_permission(self, request, view):
-        return True
+        if request.user and bool(request.user.role == 'SALES'):
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if type(obj) == Contract or type(obj) == Client or type(obj) == Event:
+            if view.action in ['update', 'partial_update', 'retrieve', 'list']:
+                return True
+            if view.action == 'destroy':
+                return False
 
 
-class IsGroupSupportEditOnly(permissions.BasePermission):
-
+class IsGroupSupport(permissions.BasePermission):
     """
     A right of modification/access for Support group: for all events for which they are responsible.
     """
 
-    def has_object_permission(self, request, view, obj):
-
-        if request.method == "POST" | "PUT" and request.user.role == "SUPPORT":
-            return True
-        return request.user.is_superuser == True
-
     def has_permission(self, request, view):
-        return True
+        if request.user and bool(request.user.role == 'SUPPORT'):
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if type(obj) == Contract:
+            if view.action in ['list', 'retrieve']:
+                return True
+            if view.action in ['update', 'create', 'partial_update', 'destroy']:
+                return False
+        if type(obj) == Client:
+            if view.action in ['list', 'retrieve']:
+                return False
+            if view.action in ['update', 'create', 'partial_update', 'destroy']:
+                return False
+        if type(obj) == Event:
+            if view.action in ['update', 'partial_update', 'retrieve', 'list']:
+                return True
+            if view.action == 'destroy':
+                return False
