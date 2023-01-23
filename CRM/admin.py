@@ -15,7 +15,7 @@ class ClientAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             'Client Info :',
-            {'fields': ('first_name', 'last_name', 'email', 'phone', 'mobile', 'company_name')}),
+            {'fields': ('last_name', 'first_name', 'email', 'phone', 'mobile', 'company_name')}),
         (
             'Sales Contact :',
             {'fields': ('sales_contact',)},
@@ -23,7 +23,7 @@ class ClientAdmin(admin.ModelAdmin):
         ('File info', {'fields': ('date_created', 'date_updated')})
     )
     readonly_fields = ('date_created', 'date_updated')
-    list_display = ('id', 'first_name', 'last_name', 'email', 'phone', 'mobile', 'company_name')
+    list_display = ('id', 'last_name', 'first_name', 'email', 'phone', 'mobile', 'company_name')
     search_fields = ['id', 'last_name', 'sales_contact']
     ordering = ['id']
 

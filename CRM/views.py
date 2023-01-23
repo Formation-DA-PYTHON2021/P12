@@ -9,11 +9,17 @@ from .serializers import (
 from .permissions import (
     IsGroupSales, IsGroupSupport, IsManager
 )
+from .filters import (
+    ClientFilter,
+    ContractFilter,
+    EventFilter
+)
 
 
 class ClientViewset(ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+    filter_class = ClientFilter
 
     def get_permissions(self):
         permission_classes = []
@@ -31,6 +37,7 @@ class ClientViewset(ModelViewSet):
 
 class ContractViewset(ModelViewSet):
     serializer_class = ContractSerializer
+    filter_class = ContractFilter
 
     def get_permissions(self):
         permission_classes = []
@@ -54,6 +61,7 @@ class ContractViewset(ModelViewSet):
 
 class EventViewset(ModelViewSet):
     serializer_class = EventSerializer
+    filter_class = EventFilter
 
     def get_permissions(self):
         permission_classes = []

@@ -40,7 +40,7 @@ class Client (models.Model):
             stat = "POTENTIAL"
         else:
             stat = "EXISTING"
-        return f"Clients {self.pk} : {self.first_name}, {self.last_name}, ({stat})"
+        return f"Clients {self.pk} : {self.last_name} {self.first_name}, ({stat})"
 
 
 class Contract (models.Model):
@@ -61,7 +61,7 @@ class Contract (models.Model):
     date_payment = models.DateField()
 
     def __str__(self):
-        name = f"{self.client.first_name}, {self.client.last_name}"
+        name = f"{self.client.last_name} {self.client.first_name}"
         sales_contact = f"{self.sales_contact}"
         if self.status is False:
             stat = "NOT SIGNED"
@@ -90,7 +90,7 @@ class Event(models.Model):
     event_notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        name = f"{self.contract.client.last_name}, {self.contract.client.first_name}"
+        name = f"{self.contract.client.first_name} {self.contract.client.last_name}"
         date = self.event_date.strftime("%Y-%m-%d")
         sales_contact = f"{self.contract.client.sales_contact}"
         if self.event_status is False:
