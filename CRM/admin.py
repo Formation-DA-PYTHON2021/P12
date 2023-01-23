@@ -4,6 +4,13 @@ from django.contrib.auth.admin import UserAdmin
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
+    fieldsets = (
+        (
+            'User Info :',
+            {'fields': ('password', 'last_name', 'first_name', 'email',
+                    'role', 'mobile', 'phone',
+                    'is_active', 'is_staff', 'is_superuser',)}),
+    )
     list_display = ('id', 'email', 'first_name', 'last_name', 'role',
                     'is_active', 'is_staff', 'is_superuser',)
     search_fields = ['email', 'first_name']

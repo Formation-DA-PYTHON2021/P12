@@ -86,7 +86,7 @@ class Event(models.Model):
     event_status = models.BooleanField(default=False, verbose_name="Completed")
     event_place = models.CharField(max_length=200, null=True, blank=True)
     event_participants = models.PositiveIntegerField()
-    event_date = models.DateTimeField()
+    event_date = models.DateField()
     event_notes = models.TextField(null=True, blank=True)
 
     def __str__(self):

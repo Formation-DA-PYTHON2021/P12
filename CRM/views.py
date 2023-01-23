@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Client, Contract, Event
 from .serializers import (
@@ -24,15 +25,14 @@ class ClientViewset(ModelViewSet):
     def get_permissions(self):
         permission_classes = []
         if self.action == 'list' or self.action == 'retrieve':
-            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales | IsGroupSupport]
         elif self.action == 'create':
-            permission_classes = [IsManager | IsGroupSales]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
         elif self.action == 'update' or self.action == 'partial_update':
-            permission_classes = [IsManager | IsGroupSales]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
         elif self.action == 'destroy':
-            permission_classes = [IsManager]
+            permission_classes = [IsAuthenticated, IsManager]
         return [permission() for permission in permission_classes]
-
 
 
 class ContractViewset(ModelViewSet):
@@ -42,13 +42,13 @@ class ContractViewset(ModelViewSet):
     def get_permissions(self):
         permission_classes = []
         if self.action == 'list' or self.action == 'retrieve':
-            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales | IsGroupSupport]
         elif self.action == 'create':
-            permission_classes = [IsManager | IsGroupSales]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
         elif self.action == 'update' or self.action == 'partial_update':
-            permission_classes = [IsManager | IsGroupSales]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
         elif self.action == 'destroy':
-            permission_classes = [IsManager]
+            permission_classes = [IsAuthenticated, IsManager]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -66,11 +66,11 @@ class EventViewset(ModelViewSet):
     def get_permissions(self):
         permission_classes = []
         if self.action == 'list' or self.action == 'retrieve' or self.action == 'update' or self.action == 'partial_update':
-            permission_classes = [IsManager | IsGroupSales | IsGroupSupport]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales | IsGroupSupport]
         elif self.action == 'create':
-            permission_classes = [IsManager | IsGroupSales]
+            permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
         elif self.action == 'destroy':
-            permission_classes = [IsManager]
+            permission_classes = [IsAuthenticated, IsManager]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):

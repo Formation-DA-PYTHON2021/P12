@@ -54,7 +54,7 @@ class IsGroupSupport(permissions.BasePermission):
                 return False
         if type(obj) == Client:
             if view.action in ['list', 'retrieve']:
-                return False
+                return True
             if view.action in ['update', 'create', 'partial_update', 'destroy']:
                 return False
         if type(obj) == Event:
