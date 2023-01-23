@@ -40,7 +40,7 @@ class Client (models.Model):
             stat = "POTENTIAL"
         else:
             stat = "EXISTING"
-        return f"Clients {self.pk} : {self.last_name}, {self.first_name}, ({stat})"
+        return f"Clients {self.pk} : {self.first_name}, {self.last_name}, ({stat})"
 
 
 class Contract (models.Model):
@@ -49,19 +49,25 @@ class Contract (models.Model):
                                limit_choices_to={"status": True},
                                related_name="contract",
                                )
+    sales_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL,
+                                      on_delete=models.SET_NULL,
+                                      null=True,
+                                      blank=True)
     status = models.BooleanField(default=False, verbose_name="Signed")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    amount = models.FloatField(default=False)
     payment_invoice = models.BooleanField(default=False, verbose_name="Payed")
     date_payment = models.DateField()
 
     def __str__(self):
-        name = f"{self.client.last_name}, {self.client.first_name}"
+        name = f"{self.client.first_name}, {self.client.last_name}"
+        sales_contact = f"{self.sales_contact}"
         if self.status is False:
             stat = "NOT SIGNED"
         else:
             stat = "SIGNED"
-        return f"Contract {self.pk} : {name} ({stat})"
+        return f"Contract {self.pk} : {name} | Sales contact : {sales_contact} ({stat})"
 
 
 class Event(models.Model):
@@ -86,8 +92,9 @@ class Event(models.Model):
     def __str__(self):
         name = f"{self.contract.client.last_name}, {self.contract.client.first_name}"
         date = self.event_date.strftime("%Y-%m-%d")
+        sales_contact = f"{self.contract.client.sales_contact}"
         if self.event_status is False:
             stat = "UPCOMMING"
         else:
             stat = "COMPLETED"
-        return f"Event {self.pk} : {name} | Date : {date} ({stat})"
+        return f"Event {self.pk} : {name} | Date : {date} ({stat}) | Sales Contacts : {sales_contact}"
