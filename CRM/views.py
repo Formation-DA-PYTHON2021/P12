@@ -65,7 +65,10 @@ class EventViewset(ModelViewSet):
 
     def get_permissions(self):
         permission_classes = []
-        if self.action == 'list' or self.action == 'retrieve' or self.action == 'update' or self.action == 'partial_update':
+        if self.action == 'list' \
+                or self.action == 'retrieve' \
+                or self.action == 'update' \
+                or self.action == 'partial_update':
             permission_classes = [IsAuthenticated, IsManager | IsGroupSales | IsGroupSupport]
         elif self.action == 'create':
             permission_classes = [IsAuthenticated, IsManager | IsGroupSales]
